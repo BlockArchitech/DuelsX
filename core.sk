@@ -1,0 +1,43 @@
+# DuelsX Core - blockarchitech - Licensed MIT 
+# Please see the LICENSE file for limitations os redistributions or use.
+
+options:
+  prefix: &9DuelsX&8: &7
+  server_prefix: &7[&dServer&7] &e
+  server_version: ALPHA_1.0
+  server_name: &9DuelsX
+
+command /help:
+  description: &7Show the help menu
+  permission:
+	- core.player.command.help
+  usage: /help
+  aliases:
+	- help
+	- h
+  trigger:
+    send "%prefix% Welcome to DuelsX!"
+	send "&8> &7DuelsX is a fast-paced, competitive, and fun duels game."
+	send "&8> &7Run &e/tutorial &7to learn how to play, Or &e/start &7to jump right in."
+	send "&8> &7For more information, visit &ehttps://duelsx.cf"
+	send "&m&8------------------------------------------------------"
+	send "&8> &7Want to report a bug? Contact an online staff member. OR Run &e/bugreport &b[description] &7to report a bug."
+	send "&8> &7Want to suggest a feature? Join our discord! &e/discord &7or tell an online staff member."
+	send "&8> &7Want to contribute code? Please contact a staff member or join our discord. To apply for staff, please visit our discord."
+    send "&m&8------------------------------------------------------"
+	send "&8> &7DuelsX has zero tolerance for cheaters, or rule-breakers. Please use /report to report these people."
+    send "&m&8------------------------------------------------------"
+	send "&8&oDuelsX is an ongoing open-source project licensed under the MIT license. Please see https://github.com/blockarchitech to visit our github repository."
+	send "&8&ohttps://blockarchitech.com - report license violations to hello@blockarchitech.com"
+
+command /bugreport <text>:
+  description: &7Report a bug
+  usage: /bugreport <text>
+  trigger:
+	send "&a&lThank you! &7Filing report..."
+	send "&7[&dBugReport&7] &e%player% &7has reported a bug: &e%arg-1%" to console
+	log "[INFO] %player% has reported a bug: %arg-1%" to bugs.log
+	send "&a&oYour report has been sent to the staff team."
+
+  
+  
