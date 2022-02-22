@@ -2,42 +2,102 @@
 # Please see the LICENSE file for limitations os redistributions or use.
 
 options:
-  prefix: &9DuelsX&8: &7
+  prefix: &9DuelsX
   server_prefix: &7[&dServer&7] &e
   server_version: ALPHA_1.0
   server_name: &9DuelsX
 
-command /welcome:
+command /help:
   description: &7Show the help menu
-  permission:
-	- core.player.command.help
-  usage: /welcome
-  aliases:
-	- help
-	- h
+  permission: core.player.command.help
+  usage: /help
   trigger:
-    send "%prefix% Welcome to DuelsX!"
-	send "&8> &7DuelsX is a fast-paced, competitive, and fun duels game."
-	send "&8> &7Run &e/tutorial &7to learn how to play, Or &e/start &7to jump right in."
-	send "&8> &7For more information, visit &ehttps://duelsx.cf"
-	send "&m&8------------------------------------------------------"
-	send "&8> &7Want to report a bug? Contact an online staff member. OR Run &e/bugreport &b[description] &7to report a bug."
-	send "&8> &7Want to suggest a feature? Join our discord! &e/discord &7or tell an online staff member."
-	send "&8> &7Want to contribute code? Please contact a staff member or join our discord. To apply for staff, please visit our discord."
-    send "&m&8------------------------------------------------------"
-	send "&8> &7DuelsX has zero tolerance for cheaters, or rule-breakers. Please use /report to report these people."
-    send "&m&8------------------------------------------------------"
-	send "&8&oDuelsX is an ongoing open-source project licensed under the MIT license. Please see https://github.com/blockarchitech to visit our github repository."
-	send "&8&ohttps://blockarchitech.com - report license violations to hello@blockarchitech.com"
+    send "&9[ - ] Welcome to DuelsX! [ - ]"
+    send "&8> &7DuelsX is a fast-paced, competitive, and fun duels game."
+    send "&8> &7Run &e/tutorial &7to learn how to play, Or &e/duel <player name> &7to jump right in."
+    send "&8> &7For more information, visit &ehttps://duelsx.cf"
+    send "&m&8--------------------------------------------------"
+    send "&8> &7Want to report a bug? Contact an online staff member. OR Run &e/bugreport &b[description] &7to report a bug."
+    send "&8> &7Want to suggest a feature? Join our discord! &e/discord &7or tell an online staff member."
+    send "&8> &7Want to contribute code? Please contact a staff member or join our discord. To apply for staff, please visit our discord."
+    send "&m&8--------------------------------------------------"
+    send "&8> &7DuelsX has zero tolerance for cheaters, or rule-breakers. Please use /report to report these people."
+    send "&m&8--------------------------------------------------"
+    send "&8&ohttps://blockarchitech.com - report license violations to hello@blockarchitech.com"
 
 command /bugreport <text>:
   description: &7Report a bug
   usage: /bugreport <text>
   trigger:
-	send "&a&lThank you! &7Filing report..."
-	send "&7[&dBugReport&7] &e%player% &7has reported a bug: &e%arg-1%" to console
-	log "[INFO] %player% has reported a bug: %arg-1%" to bugs.log
-	send "&a&oYour report has been sent to the staff team."
+    send "&a&lThank you! &7Filing report..."
+    send "&7[&dBugReport&7] &e%player% &7has reported a bug: &e%arg-1%" to console
+    execute console command "/sendmsgtoops &e%player% &7has reported a bug: &b%arg-1%"
+    send "&a&oYour report has been sent to the staff team."
 
-  
+command /day:
+  permission: core.admin.timecontrol
+  description: &7Set the time to day
+  trigger:
+    execute console command "/time set day"
+    send "&8> &7Universal Time set to &bDAY"
+
+command /setspawn:
+    permission: setspawn.use
+    permission message: &cNice try! You do not have permission to use this command!
+    trigger:
+        set {spawn} to player's location
+        send "&aYou've successfully set the spawn location." to player
+
+command /delspawn:
+    permission: setspawn.use
+    permission message: &cOnce again, Nice try! You do not have the permission to use this command!
+    trigger:
+        if {spawn} is set:
+            delete {spawn}
+            send "&cYou've deleted the spawn location." to player
+        else:
+            send "&cThe spawn location isn't set." to player
+
+command /spawn:
+    trigger:
+        teleport player to {spawn}
+		send "&8> &7You have been teleported to the spawn location." to player
+command /hub:
+    trigger:
+        teleport player to {spawn}
+		send "&8> &7You have been teleported to the spawn location." to player
+
+on join:
+    teleport player to {spawn}
+
+command /gmc:
+  permission: core.admin.gamemode.manage
+  permission message: &cYou don't have permission to change gamemode! Please contact an admistrator if this is an error.
+  description: &7Set the gamemode to creative
+  trigger:
+    execute console command "/gamemode creative %player%"
+    send "&8> &eGamemode &7set to &bCREATIVE" to player
+
+command /gms:
+  permission: core.admin.gamemode.manage
+  permission message: &cYou don't have permission to change gamemode! Please contact an admistrator if this is an error.
+  description: &7Set the gamemode to creative
+  trigger:
+    execute console command "/gamemode survival %player%"
+    send "&8> &eGamemode &7set to &SURVIVAL" to player
+
+
+command /tutorial:
+  trigger:
+    send player title "&e&lTutorial" with subtitle "&7Welcome to &bDuelsX&7! &7&oWe're glad you're here."
+    wait 2 seconds
+    teleport player to location 291.7, 4, 1339.471 in world "MainWorld"
+    send player title "&7DuelsX is a &cfast-paced&7, and &ecompetitive&7 PvP game." with subtitle "&7Attack your enimies!" for 5 seconds
+    wait 5 seconds
+    teleport player to location 286.490, 4, 1317.457 in world "MainWorld"
+    send player title "&7Easily start a game with &b&l/duel <player name>" with subtitle "&7&o(really, it's that easy!)" for 5 seconds
+    wait 5 seconds
+    send player title "&e&lThat's it!" with subtitle "&7&oYou've completed the tutorial. Type &b&l/duel <player name>&7 to begin."
+    teleport player to {spawn}
+    send player title "&b&l/help" with subtitle "&7More information can be found by typing &b&l/help"
   
