@@ -6,6 +6,8 @@ options:
   server_prefix: &7[&dServer&7] &e
   server_version: ALPHA_1.0
   server_name: &9DuelsX
+  pf: &8[&eMoney&8]
+  noperms: &8[&eMoney&8] &cYou don't have enough permissions.
 
 command /help:
   description: &7Show the help menu
@@ -21,7 +23,7 @@ command /help:
     send "&8> &7Want to suggest a feature? Join our discord! &e/discord &7or tell an online staff member."
     send "&8> &7Want to contribute code? Please contact a staff member or join our discord. To apply for staff, please visit our discord."
     send "&m&8--------------------------------------------------"
-    send "&8> &7DuelsX has zero tolerance for cheaters, or rule-breakers. Please use /report to report these people."
+    send "&8> &7DuelsX has zero tolerance for cheaters, or rule-breakers. Please use /report to report these users."
     send "&m&8--------------------------------------------------"
     send "&8&ohttps://blockarchitech.com - report license violations to hello@blockarchitech.com"
 
@@ -30,9 +32,21 @@ command /bugreport <text>:
   usage: /bugreport <text>
   trigger:
     send "&a&lThank you! &7Filing report..."
-    send "&7[&dBugReport&7] &e%player% &7has reported a bug: &e%arg-1%" to console
+    send "&7[&dBugReport&7] &b%player% &7has reported a bug: &e%arg-1%" to console
     execute console command "/sendmsgtoops &e%player% &7has reported a bug: &b%arg-1%"
     send "&a&oYour report has been sent to the staff team."
+
+command /report <player> <text>:
+  description: &7Report a player
+  usage: /report <online player> <text>
+  trigger:
+    if arg-1 is "%player%":
+      send "&c&oYou can't report yourself!"
+    else:
+      send "&a&lThank you! &7Filing report..."
+      send "&7[&dUser Reports&7] &b%player% &7has reported a player: &e%arg-1% for %arg-2%" to console
+      execute console command "/sendmsgtoops &e%player% &7has reported a player: &b%arg-1% for %arg-2%"
+      send "&a&oYour report has been sent to the staff team."
 
 command /day:
   permission: core.admin.timecontrol
@@ -59,16 +73,20 @@ command /delspawn:
             send "&cThe spawn location isn't set." to player
 
 command /spawn:
-    trigger:
-        teleport player to {spawn}
-		send "&8> &7You have been teleported to the spawn location." to player
+  trigger:
+    teleport player to {spawn}
+    send "&8> &7You have been teleported to the spawn location." to player
 command /hub:
-    trigger:
-        teleport player to {spawn}
-		send "&8> &7You have been teleported to the spawn location." to player
+  trigger:
+    teleport player to {spawn}
+    send "&8> &7You have been teleported to the spawn location." to player
 
 on join:
     teleport player to {spawn}
+    set player's gamemode to adventure
+    broadcast "&8[&a+&8] &a&oHey there, %player%!"
+on quit:
+	broadcast "&8[&c-&8] &c&o%player% has left the server."
 
 command /gmc:
   permission: core.admin.gamemode.manage
@@ -100,4 +118,150 @@ command /tutorial:
     send player title "&e&lThat's it!" with subtitle "&7&oYou've completed the tutorial. Type &b&l/duel <player name>&7 to begin."
     teleport player to {spawn}
     send player title "&b&l/help" with subtitle "&7More information can be found by typing &b&l/help"
-  
+
+command /im <player> <text>:
+	description: &7Message another player.
+	usage: /im <player> <textmessage>
+	aliases: /tell
+	trigger:
+		set {chat.private.reply.%player%} to arg 1
+		set {chat.private.reply.%arg 1%} to player
+		send "&9[MSG] &e%arg 1% &b-> &e%arg 2%" to player
+		send "&9[MSG] &b%player% &e-> &b%arg 2%" to arg 1
+
+command /imr <text>:	
+	description: Reply command.
+	usage: /imr <message>
+	trigger:
+		send "&9[MSG] &b%{chat.private.reply.%player%}% &b->&e %arg 1%" to player
+		send "&9[MSG] &e%player% &b->&e %arg 1%" to {chat.private.reply.%player%}
+
+# signs are pretty cool
+on sign change:
+    set line 1 of event-block to "%colored line 1 of event-block%"
+    set line 2 of event-block to "%colored line 2 of event-block%"
+    set line 3 of event-block to "%colored line 3 of event-block%"
+    set line 4 of event-block to "%colored line 4 of event-block%"
+
+#Money
+	
+variables:
+	{money.%player%} = 0
+	
+command /money:
+	trigger:
+		send "{@pf} &c$%{money.%player%}%"
+
+command /addmoney [<offlineplayer>] [<integer>]:
+	permission: money.add
+	permission message: {@noperms}
+	trigger:
+		if arg 1 is not set:
+			send "{@pf} &cUsage: /moneyadd <player> <amount>" to sender
+			stop
+		if arg 2 is not set:
+			send "{@pf} &cUsage: /moneyadd <player> <amount>" to sender
+			stop
+		if arg 2 is set:
+			add arg 2 to {money.%arg 1%}
+			send "{@pf} &7You transferred &c$%arg 2% &7to &c%arg 1%&7." to sender
+			
+command /setmoney [<offlineplayer>] [<integer>]:
+	permission: money.set
+	permission message: {@noperms}
+	trigger:
+		if arg 1 is not set:
+			send "{@pf} &cUsage: /moneyset <player> <amount>" to sender
+			stop
+		if arg 2 is not set:
+			send "{@pf} &cUsage: /moneyset <player> <amount>" to sender
+			stop
+		if arg 2 is set:
+			set {money.%arg 1%} to arg 2
+			send "{@pf} &7You have set the money from &c%arg 1% &7to &c$%arg 2%&7." to sender
+			
+command /pay [<player>] [<integer>]:
+	trigger:
+		if arg 1 is not set:
+			send "{@pf} &cUsage: /pay <player> <amount>" to sender
+			stop
+		if arg 1 is "%sender%":
+			send "{@pf} &cYou can not send yourself money." to sender
+			stop
+		if arg 2 is not set:
+			send "{@pf} &cUsage: /pay <player> <amount>" to sender
+			stop
+		if arg 2 is set:
+			if arg 2 is less than 1:
+				send "{@pf} &cYou can not send less than 0 money to someone." to sender
+			if arg 2 is bigger than 0:
+				if arg 2 is less than {money.%sender%} +1:
+					add arg 2 to {money.%arg 1%}
+					remove arg 2 from {money.%sender%}
+					send "{@pf} &7You have paid &c%arg 1% $%arg 2%&7." to sender
+					send "{@pf} &c%sender% &7has paid you &c$%arg 2%&7." to arg 1
+				else:
+					send "{@pf} &cYou can not send more money to someone like you." to sender
+
+
+command /shopguy:
+  trigger:
+    open virtual chest inventory with name "&a&lShop &8- &e%player%" to player
+	format gui slot 0 of player with stone named "&a&lVIP"
+
+command /addTabWorld [<world>]:
+    permission: addTabWorld
+    trigger:
+        if arg 1 is not set:
+            send "&6The way this is used is when you type /addTabWorld <world>, it will add the world to the list of the worlds not being affected by the default tab."
+            stop
+        else:
+            if arg 1 is not a world:
+                send "&6This world does not exist!"
+                stop
+            else:
+                if {tabWorlds::*} is not arg-1:
+                    add arg-1 to {tabWorlds::*}
+                    send "&6%arg-1% was added to the tab worlds."
+                else:
+                    remove arg-1 from {tabWorlds::*}
+                    send "&6%arg-1% was removed from the tab worlds."
+
+every 0.1 seconds:
+    loop all players:
+        if loop-player is not in {tabWorlds::*}:
+            if loop-player is in world "MainWorld":
+                set {_server} to "&9Hub"
+                set {_serverDesc1} to "&7Welcome to the &eHub!"
+                set {_serverDesc2} to "&7Run &b&l/duel <player>&7 to begin."
+            if loop-player is in world "DuelWorld":
+                set {_server} to "&9Duels"
+                set {_serverDesc1} to "&eYou are playing in a duel."
+                set {_serverDesc2} to "&cTo leave, &c&l/duel leave&c."
+            set tablist name of loop-player to "%{prefix::%loop-player%}% %loop-player%"
+            set tab header to "%nl%&9&lDuelsX &7| &b%{_server}%%nl%&7%nl%&7&oIP &3&o&nduelsx.playerservers.com%nl%&7&oDiscord &3&o&n/discord%nl%%nl%" and footer to "%nl%%{_serverDesc1}%%nl%%{_serverDesc2}%%nl%" for loop-player
+        #
+        #   Extra stuff to reduce lag
+        #
+ 
+command /bc <text>:
+  permission: core.admin.bc
+  trigger:
+    broadcast "&f"
+    broadcast "&8[&9DuelsX&8] &7%arg-1%"
+    broadcast "&f"
+
+command /duelacc <text>:
+  trigger:
+    broadcast "&eDuel&7: %arg-1%" #contains 321 4 1377
+
+command /discord:
+  trigger:
+    send "&9Join our Discord here: https://discord.gg/hu2dd6xM"
+
+every 2 minutes:
+  execute console command "/bc Join our discord! https://discord.gg/hu2dd6xM"
+
+on first join:
+  make event-player execute command "/tutorial"
+
